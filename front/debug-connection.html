@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Supabase 连接调试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+        .success { background-color: #d4edda; color: #155724; }
+        .error { background-color: #f8d7da; color: #721c24; }
+        .info { background-color: #d1ecf1; color: #0c5460; }
+        .warning { background-color: #fff3cd; color: #856404; }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        pre {
+            background-color: #f8f9fa;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+        .key-display {
+            word-break: break-all;
+            font-family: monospace;
+            background-color: #f8f9fa;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 Supabase 连接调试工具</h1>
+        
+        <div id="config-info">
+            <h2>当前配置信息</h2>
+            <div id="config-display"></div>
+        </div>
+
+        <div id="test-section">
+            <h2>连接测试</h2>
+            <button onclick="testConnection()">测试 Supabase 连接</button>
+            <button onclick="testTableAccess()">测试表访问</button>
+            <button onclick="clearResults()">清除结果</button>
+        </div>
+
+        <div id="results"></div>
+    </div>
+
+    <script src="js/config.js"></script>
+    <script>
+        // 显示配置信息
+        function displayConfig() {
+            const config = window.config.getSupabaseConfig();
+            const configDisplay = document.getElementById('config-display');
+            
+            configDisplay.innerHTML = `
+                <div class="status info">
+                    <strong>Project URL:</strong><br>
+                    <div class="key-display">${config.url}</div>
+                </div>
+                <div class="status info">
+                    <strong>Publishable Key:</strong><br>
+                    <div class="key-display">${config.key}</div>
+                    <small>长度: ${config.key.length} 字符</small><br>
+                    <small>开头: ${config.key.substring(0, 20)}...</small><br>
+                    <small>结尾: ...${config.key.substring(config.key.length - 20)}</small>
+                </div>
+            `;
+        }
+
+        // 测试基本连接
+        async function testConnection() {
+            addResult('🔄 开始测试 Supabase 连接...', 'info');
+            
+            try {
+                const config = window.config.getSupabaseConfig();
+                
+                // 检查配置
+                if (!config.url || !config.key) {
+                    addResult('❌ 配置缺失：URL 或 Key 为空', 'error');
+                    return;
+                }
+
+                if (config.url === 'YOUR_SUPABASE_PROJECT_URL' || config.key === 'YOUR_SUPABASE_PUBLISHABLE_KEY') {
+                    addResult('❌ 配置未更新：仍然是占位符文本', 'error');
+                    return;
+                }
+
+                // 测试基本 HTTP 请求
+                const testUrl = `${config.url}/rest/v1/`;
+                const response = await fetch(testUrl, {
+                    method: 'GET',
+                    headers: {
+                        'apikey': config.key,
+                        'Authorization': `Bearer ${config.key}`
+                    }
+                });
+
+                addResult(`📡 HTTP 响应状态: ${response.status} ${response.statusText}`, 
+                    response.ok ? 'success' : 'error');
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    addResult(`❌ 错误详情: ${errorText}`, 'error');
+                } else {
+                    addResult('✅ 基本连接成功！', 'success');
+                }
+
+            } catch (error) {
+                addResult(`❌ 连接测试失败: ${error.message}`, 'error');
+                console.error('Connection test error:', error);
+            }
+        }
+
+        // 测试表访问
+        async function testTableAccess() {
+            addResult('🔄 开始测试数据库表访问...', 'info');
+            
+            try {
+                const config = window.config.getSupabaseConfig();
+                
+                // 测试访问 api_configs 表
+                const testUrl = `${config.url}/rest/v1/api_configs?limit=1`;
+                const response = await fetch(testUrl, {
+                    method: 'GET',
+                    headers: {
+                        'apikey': config.key,
+                        'Authorization': `Bearer ${config.key}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                addResult(`📊 表访问响应: ${response.status} ${response.statusText}`, 
+                    response.ok ? 'success' : 'error');
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    addResult(`❌ 表访问错误: ${errorText}`, 'error');
+                    
+                    if (response.status === 404) {
+                        addResult('💡 提示: 可能是表不存在，请确认已执行 database-schema.sql', 'warning');
+                    }
+                } else {
+                    const data = await response.json();
+                    addResult(`✅ 表访问成功！返回 ${data.length} 条记录`, 'success');
+                }
+
+            } catch (error) {
+                addResult(`❌ 表访问测试失败: ${error.message}`, 'error');
+                console.error('Table access test error:', error);
+            }
+        }
+
+        // 添加结果显示
+        function addResult(message, type) {
+            const results = document.getElementById('results');
+            const div = document.createElement('div');
+            div.className = `status ${type}`;
+            div.innerHTML = `<strong>${new Date().toLocaleTimeString()}</strong> - ${message}`;
+            results.appendChild(div);
+            results.scrollTop = results.scrollHeight;
+        }
+
+        // 清除结果
+        function clearResults() {
+            document.getElementById('results').innerHTML = '';
+        }
+
+        // 页面加载时显示配置
+        window.addEventListener('load', () => {
+            displayConfig();
+            addResult('🌸 调试工具已加载，请点击按钮开始测试', 'info');
+        });
+    </script>
+</body>
+</html>

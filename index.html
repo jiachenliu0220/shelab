@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>打工人启动助手</title>
+    <link rel="stylesheet" href="styles/main.css">
+</head>
+<body>
+    <div id="app">
+        <header class="app-header">
+            <h1 class="app-title">打工人启动助手</h1>
+            <button id="settings-btn" class="settings-btn" aria-label="设置">⚙️</button>
+        </header>
+        
+        <main id="main-content" class="main-content">
+            <!-- 动态内容将在这里渲染 -->
+            <div class="loading">
+                <p>正在温柔地准备中...</p>
+            </div>
+        </main>
+        
+        <nav class="bottom-nav">
+            <button id="nav-daily" class="nav-btn active" data-route="daily">
+                <span class="nav-icon">🌅</span>
+                <span class="nav-text">今日启动</span>
+            </button>
+            <button id="nav-zoo" class="nav-btn" data-route="zoo">
+                <span class="nav-icon">🦊</span>
+                <span class="nav-text">我的动物园</span>
+            </button>
+        </nav>
+    </div>
+    
+    <!-- 设置面板 -->
+    <div id="settings-panel" class="settings-panel hidden">
+        <div class="settings-content">
+            <div class="settings-header">
+                <h2>设置</h2>
+                <button id="close-settings" class="close-btn">×</button>
+            </div>
+            
+            <div class="settings-section">
+                <h3>演示模式</h3>
+                <div class="demo-controls">
+                    <label class="switch">
+                        <input type="checkbox" id="demo-mode-toggle">
+                        <span class="slider"></span>
+                    </label>
+                    <span>启用演示模式</span>
+                </div>
+                
+                <div id="demo-time-controls" class="demo-time-controls hidden">
+                    <p class="demo-date">当前虚拟日期: <span id="virtual-date-display">--</span></p>
+                    <div class="demo-buttons">
+                        <button id="advance-day" class="demo-btn">前进1天</button>
+                        <button id="jump-monday" class="demo-btn">跳到下周一</button>
+                        <button id="trigger-weekend" class="demo-btn">触发周末结算</button>
+                        <button id="reset-time" class="demo-btn secondary">重置为真实时间</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- JavaScript 文件 -->
+    <script src="js/constants.js"></script>
+    <script src="js/utils/DataManager.js"></script>
+    <script src="js/utils/DateManager.js"></script>
+    <script src="js/core/StateManager.js"></script>
+    <script src="js/core/AnimalSystem.js"></script>
+    <script src="js/components/DailyStartPage.js"></script>
+    <script src="js/components/MondayStartPage.js"></script>
+    <script src="js/components/DemoModePanel.js"></script>
+    <script src="js/components/ZooPage.js"></script>
+    <script src="js/components/SettingsPanel.js"></script>
+    <script src="js/AppController.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>

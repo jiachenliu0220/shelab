@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>打工人启动助手 - 本地版</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div id="app">
+        <!-- 聊天界面 -->
+        <div id="chat-container" class="chat-container">
+            <header class="chat-header">
+                <h1 class="app-title">🌸 打工人启动助手</h1>
+                <button id="settings-btn" class="settings-btn" title="设置">
+                    <span class="settings-icon">⚙️</span>
+                </button>
+            </header>
+
+            <main class="chat-main">
+                <!-- 对话队列框 -->
+                <div id="chat-messages" class="chat-messages">
+                    <div class="welcome-message">
+                        <div class="message bot-message">
+                            <div class="message-avatar">🦊</div>
+                            <div class="message-content">
+                                <p>你好！我是你的温柔启动助手 🌸</p>
+                                <p>我可以帮你开启美好的一天～</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 消息输入框 -->
+                <div class="chat-input-container">
+                    <div class="input-wrapper">
+                        <input 
+                            type="text" 
+                            id="message-input" 
+                            class="message-input" 
+                            placeholder="告诉我你想要什么帮助..."
+                            maxlength="500"
+                        >
+                        <button id="send-btn" class="send-btn" title="发送">
+                            <span class="send-icon">💌</span>
+                        </button>
+                    </div>
+                </div>
+            </main>
+        </div>
+
+        <!-- 设置面板 -->
+        <div id="settings-panel" class="settings-panel hidden">
+            <div class="settings-content">
+                <div class="settings-header">
+                    <h2>⚙️ 设置</h2>
+                    <button id="close-settings" class="close-btn">×</button>
+                </div>
+
+                <div class="settings-body">
+                    <!-- API配置区域 -->
+                    <div id="api-config-section" class="settings-section">
+                        <h3>🤖 AI API 配置</h3>
+                        <div id="api-status" class="api-status warning">
+                            ⚠️ 未配置API，将使用本地回复
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="api-url">API 地址</label>
+                            <input 
+                                type="url" 
+                                id="api-url" 
+                                class="form-input"
+                                placeholder="https://api.openai.com/v1/chat/completions"
+                            >
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="api-key">API 密钥</label>
+                            <input 
+                                type="password" 
+                                id="api-key" 
+                                class="form-input"
+                                placeholder="sk-..."
+                            >
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="model-name">模型名称</label>
+                            <input 
+                                type="text" 
+                                id="model-name" 
+                                class="form-input"
+                                placeholder="gpt-3.5-turbo"
+                                value="gpt-3.5-turbo"
+                            >
+                        </div>
+
+                        <div class="form-group">
+                            <button id="save-api-config" class="btn-primary">
+                                💾 保存API配置
+                            </button>
+                            <button id="test-api" class="btn-secondary">
+                                🔧 测试连接
+                            </button>
+                        </div>
+                        
+                        <div class="form-group">
+                            <small class="text-muted">
+                                💡 配置API后可获得更智能的对话。不配置也可以正常使用本地回复。
+                            </small>
+                        </div>
+                    </div>
+
+                    <!-- 个人设置 -->
+                    <div class="settings-section">
+                        <h3>👤 个人设置</h3>
+                        <div class="form-group">
+                            <label for="user-name">你的昵称</label>
+                            <input 
+                                type="text" 
+                                id="user-name" 
+                                class="form-input"
+                                placeholder="小伙伴"
+                                maxlength="20"
+                            >
+                        </div>
+                    </div>
+
+                    <!-- 界面设置 -->
+                    <div class="settings-section">
+                        <h3>🎨 界面设置</h3>
+                        <div class="form-group">
+                            <label for="theme-select">主题色彩</label>
+                            <select id="theme-select" class="form-select">
+                                <option value="pink">粉色系 🌸</option>
+                                <option value="green">绿色系 🌿</option>
+                                <option value="blue">蓝色系 💙</option>
+                                <option value="purple">紫色系 💜</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- 数据管理 -->
+                    <div class="settings-section">
+                        <h3>📊 数据管理</h3>
+                        <div class="form-group">
+                            <button id="clear-data" class="btn-danger">
+                                🗑️ 清除聊天记录
+                            </button>
+                        </div>
+                        <div class="form-group">
+                            <small class="text-muted">
+                                💡 这是混合版本：API配置和聊天记录都保存在浏览器本地，不会上传到服务器。
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 加载指示器 -->
+        <div id="loading-indicator" class="loading-indicator hidden">
+            <div class="loading-spinner">🌸</div>
+            <p>正在思考中...</p>
+        </div>
+    </div>
+
+    <!-- JavaScript 文件 - 混合版本 -->
+    <script src="js/config.js"></script>
+    <script src="js/local-api-client.js"></script>
+    <script src="js/simple-chat-manager.js"></script>
+    <script src="js/simple-settings-manager.js"></script>
+    <script src="js/simple-app.js"></script>
+</body>
+</html>
